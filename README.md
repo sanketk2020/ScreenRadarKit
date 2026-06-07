@@ -1,14 +1,16 @@
 <p align="center">
-  <img src="assets/icon.svg" width="280" />
+  <img src="Assets/icon.svg" width="400" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-iOS%2013%2B-blue" />
+  <img src="https://img.shields.io/badge/Swift-5.7%2B-orange" />
+  <img src="https://img.shields.io/badge/SPM-compatible-brightgreen" />
 </p>
 
 # ScreenRadarKit
 
 A lightweight debug tool for iOS developers to instantly see which screen they're on while testing their app.
-
-![Platform](https://img.shields.io/badge/platform-iOS%2013%2B-blue)
-![Swift](https://img.shields.io/badge/Swift-5.7%2B-orange)
-![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen)
 
 ---
 
@@ -104,27 +106,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 ```
 
-### SwiftUI App
-
-```swift
-import SwiftUI
-import ScreenRadarKit
-
-@main
-struct MyApp: App {
-    init() {
-        #if DEBUG
-        ScreenRadar.enable()
-        #endif
-    }
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
-}
-```
+> ⚠️ **SwiftUI** — Native SwiftUI support is currently in progress and will be available in a future release.
 
 ---
 
