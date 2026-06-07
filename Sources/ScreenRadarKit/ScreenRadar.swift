@@ -30,10 +30,10 @@ public final class ScreenRadar: NSObject {
     ///   or `SceneDelegate.scene(_:willConnectTo:options:)`.
     ///   Wrap in `#if DEBUG` to ensure it is never shipped to production.
     @MainActor
-    public static func enable() {
+    public static func enable(draggable: Bool = false) {
         print("🚀 ScreenRadar enabled")
         DispatchQueue.main.async {
-            OverlayWindow.shared.show()
+            OverlayWindow.shared.show(draggable: draggable)
             UIViewController.enableScreenRadarTracking()
             ViewControllerTracker.shared.refresh()
         }
