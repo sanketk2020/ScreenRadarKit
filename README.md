@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="assets/icon.svg" width="280" />
+</p>
+
 # ScreenRadarKit
 
-A lightweight iOS debug overlay that displays the **current UIViewController name** on screen in real time — so you always know exactly which screen you're on while developing.
+A lightweight debug tool for iOS developers to instantly see which screen they're on while testing their app.
 
 ![Platform](https://img.shields.io/badge/platform-iOS%2013%2B-blue)
 ![Swift](https://img.shields.io/badge/Swift-5.7%2B-orange)
@@ -15,7 +19,9 @@ A lightweight iOS debug overlay that displays the **current UIViewController nam
 - 👆 **Tap to print hierarchy** — tap the label to dump the full VC hierarchy to the Xcode console
 - 🫥 **Passthrough touches** — the overlay never blocks your app's own interactions
 - ⚡ **One-line setup** — call `ScreenRadar.enable()` once and you're done
-- 🛡️ **Zero production risk** — wrap in `#if DEBUG` and it never ships to users
+- 🌗 **Dark & light mode support** — overlay automatically adapts to system appearance
+- 🖐️ **Draggable overlay** — optionally drag the label anywhere on screen, snaps to nearest edge
+- 🛡️ **Zero production risk** — compiled only in `DEBUG` builds, never ships to users
 
 ---
 
@@ -119,6 +125,28 @@ struct MyApp: App {
     }
 }
 ```
+
+---
+
+## Draggable Overlay
+
+By default the overlay is fixed at the top center. Pass `draggable: true` to let developers drag it anywhere on screen. It snaps to the nearest edge — top, bottom, left, or right — when released. Position is saved across app launches.
+
+```swift
+ScreenRadar.enable(draggable: true)
+```
+
+---
+
+## Dark & Light Mode
+
+The overlay automatically adapts to the system appearance — no extra setup needed.
+
+| Light Mode | Dark Mode |
+|---|---|
+| Black background, white text | White background, black text |
+
+> Make sure `UIUserInterfaceStyle` is **not** forced in your `Info.plist`, otherwise the system appearance change will have no effect.
 
 ---
 
