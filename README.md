@@ -18,7 +18,9 @@ A lightweight debug tool for iOS developers to instantly see which screen they'r
 
 - 📱 **Real-time screen name overlay** — floating label shows the active `UIViewController` class name
 - 🔄 **Auto-detection** — uses method swizzling on `viewDidAppear` / `viewDidDisappear`, no manual calls needed
-- 👆 **Tap to print hierarchy** — tap the label to dump the full VC hierarchy to the Xcode console
+- 👆 **Tap for trail details** — tap the label to open a bottom sheet and dump the hierarchy/trail to the Xcode console
+- 🧭 **Navigation breadcrumbs** — records every visited screen, including repeats and back navigation
+- ⏱️ **Optional screen timing** — pass `showTimeOnTrail: true` to include durations in the trail
 - 🫥 **Passthrough touches** — the overlay never blocks your app's own interactions
 - ⚡ **One-line setup** — call `ScreenRadar.enable()` once and you're done
 - 🌗 **Dark & light mode support** — overlay automatically adapts to system appearance
@@ -120,6 +122,22 @@ ScreenRadar.enable(draggable: true)
 
 ---
 
+## Navigation Trail
+
+Tap the overlay label to open a bottom sheet with the current session trail and the previous session trail. The current screen is highlighted, and you can clear or export the trail as a plain text file.
+
+```swift
+ScreenRadar.enable(showTimeOnTrail: true)
+```
+
+You can combine options:
+
+```swift
+ScreenRadar.enable(draggable: true, showTimeOnTrail: true)
+```
+
+---
+
 ## Dark & Light Mode
 
 The overlay automatically adapts to the system appearance — no extra setup needed.
@@ -141,6 +159,8 @@ The overlay automatically adapts to the system appearance — no extra setup nee
 | `ViewControllerTracker` | Resolves the topmost VC from the window hierarchy; prints hierarchy on tap |
 | `OverlayWindow` | Creates a `UIWindow` above all other windows with the floating label |
 | `PassthroughWindow` | Overrides `hitTest` so touches fall through to the app beneath |
+| `TrailLogger` | Records, persists, clears, and exports screen trails |
+| `TrailBottomSheet` | Presents current and previous session trails |
 
 ---
 
@@ -163,6 +183,13 @@ When active, ScreenRadar prints to the Xcode console:
    Visible:
       ↳ ProfileViewController
 ==========================
+
+📋 ScreenRadar Trail Export
+Generated: 2026-06-08 12:04:21
+
+1. HomeViewController           4s
+2. MessagesViewController       12s
+3. ProfileViewController        ← current
 ```
 
 ---

@@ -58,6 +58,26 @@ final class ViewControllerTracker {
         """)
     }
 
+    func recordAppear(for viewController: UIViewController) {
+        TrailLogger.shared.recordAppear(for: viewController)
+    }
+
+    func recordDisappear(for viewController: UIViewController) {
+        TrailLogger.shared.recordDisappear(for: viewController)
+    }
+
+    func isTopViewController(_ viewController: UIViewController) -> Bool {
+        topViewController() === viewController
+    }
+
+    func seedCurrentVisibleTrail() {
+        TrailLogger.shared.seedInitialTrail(with: visibleTrail())
+    }
+
+    func topScreenViewController() -> UIViewController? {
+        topViewController()
+    }
+
     // MARK: - Private Helpers
 
     private func printViewController(
@@ -72,7 +92,6 @@ final class ViewControllerTracker {
                 print("\(indent)   Selected Tab:")
                 printViewController(selected, indent: indent + "   ")
             }
-            return
         }
 
         if let navigation = viewController as? UINavigationController {
@@ -85,7 +104,6 @@ final class ViewControllerTracker {
                 print("\(indent)   Visible:")
                 printViewController(visible, indent: indent + "   ")
             }
-            return
         }
 
         if let presented = viewController.presentedViewController {
@@ -100,10 +118,22 @@ final class ViewControllerTracker {
                 .connectedScenes
                 .compactMap { $0 as? UIWindowScene }
                 .flatMap { $0.windows }
-                .first(where: { $0.isKeyWindow })?
+                .first(where: { $0.isKeyWindow && !($0 is PassthroughWindow) })?
+                .rootViewController
+                ?? UIApplication.shared
+                .connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first(where: { !$0.isHidden && !($0 is PassthroughWindow) })?
                 .rootViewController
         }
-        return UIApplication.shared.keyWindow?.rootViewController
+
+        return UIApplication.shared.windows
+            .first(where: { $0.isKeyWindow && !($0 is PassthroughWindow) })?
+            .rootViewController
+            ?? UIApplication.shared.windows
+            .first(where: { !$0.isHidden && !($0 is PassthroughWindow) })?
+            .rootViewController
     }
 
     private func topViewController(
@@ -124,5 +154,30 @@ final class ViewControllerTracker {
         }
 
         return vc
+    }
+
+    private func visibleTrail(
+        from viewController: UIViewController? = nil
+    ) -> [UIViewController] {
+        guard let vc = viewController ?? rootViewController() else { return [] }
+
+        if let navigation = vc as? UINavigationController {
+            var trail = navigation.viewControllers
+            if let presented = navigation.visibleViewController?.presentedViewController {
+                trail.append(contentsOf: visibleTrail(from: presented))
+            }
+            return trail
+        }
+
+        if let tabBar = vc as? UITabBarController {
+            guard let selected = tabBar.selectedViewController else { return [tabBar] }
+            return visibleTrail(from: selected)
+        }
+
+        if let presented = vc.presentedViewController {
+            return [vc] + visibleTrail(from: presented)
+        }
+
+        return [vc]
     }
 }

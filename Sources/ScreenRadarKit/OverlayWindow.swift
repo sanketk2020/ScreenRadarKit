@@ -157,6 +157,18 @@
 
      @objc private func labelTapped() {
          ViewControllerTracker.shared.printHierarchy()
+         TrailLogger.shared.printTrail()
+         presentTrailBottomSheet()
+     }
+
+     private func presentTrailBottomSheet() {
+         guard let rootViewController = window?.rootViewController,
+               rootViewController.presentedViewController == nil
+         else { return }
+
+         let trailBottomSheet = TrailBottomSheet()
+         trailBottomSheet.modalPresentationStyle = .overFullScreen
+         rootViewController.present(trailBottomSheet, animated: true)
      }
 
      @objc private func labelPanned(_ gesture: UIPanGestureRecognizer) {

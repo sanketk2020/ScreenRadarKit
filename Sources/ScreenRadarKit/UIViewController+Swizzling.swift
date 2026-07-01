@@ -49,6 +49,7 @@ extension UIViewController {
     @objc private func sr_viewDidAppear(_ animated: Bool) {
         sr_viewDidAppear(animated) // calls original implementation
         DispatchQueue.main.async {
+            ViewControllerTracker.shared.recordAppear(for: self)
             ViewControllerTracker.shared.refresh()
         }
     }
@@ -58,6 +59,7 @@ extension UIViewController {
     @objc private func sr_viewDidDisappear(_ animated: Bool) {
         sr_viewDidDisappear(animated) // calls original implementation
         DispatchQueue.main.async {
+            ViewControllerTracker.shared.recordDisappear(for: self)
             ViewControllerTracker.shared.refresh()
         }
     }
