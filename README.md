@@ -258,5 +258,26 @@ ScreenRadar.disable()
 ---
 
 ## License
-
 MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## Contact
+For questions or feature requests, reach out at [sanketk.j.2020@gmail.com](mailto:sanketk.j.2020@gmail.com) or open an issue.
+
+---
+
+## Author
+[Sanket Khatri](https://github.com/sanketk2020) 
+
+---
+ 
+## Support
+ 
+If ScreenRadarKit saved you time while debugging, consider buying me a coffee ☕️
+ 
+<p align="left">
+  <a href="https://www.buymeacoffee.com/SanketK97" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="180" />
+  </a>
+</p>
