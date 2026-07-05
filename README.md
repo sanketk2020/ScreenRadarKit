@@ -14,6 +14,16 @@ A lightweight debug tool for iOS developers to instantly see which screen they'r
 
 ---
 
+## Demo
+
+<p align="center">
+  <img src="Sample/Sample.gif" width="250" />
+</p>
+
+The overlay label updates automatically as the user moves from screen to screen — no manual calls needed. Tapping the label opens the trail bottom sheet, showing every screen visited in order with the current one highlighted, and the label itself can be dragged to any edge of the screen and stays there across launches.
+
+---
+
 ## Features
 
 - 📱 **Real-time screen name overlay** — floating label shows the active `UIViewController` class name
@@ -71,6 +81,13 @@ targets: [
 
 > Important: ScreenRadar is a debug tool. Always wrap `ScreenRadar.enable()` in `#if DEBUG` in your app target. If you call it from a Release build, the overlay will appear.
 
+`ScreenRadar.enable()` takes two optional parameters:
+
+| Parameter | Default | Description |
+|---|---|---|
+| `draggable` | `false` | Lets you drag the overlay anywhere on screen; snaps to the nearest edge on release |
+| `showTimeOnTrail` | `false` | Adds per-screen duration to the navigation trail shown in the bottom sheet |
+
 ### AppDelegate (UIKit)
 
 ```swift
@@ -84,7 +101,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
 
         #if DEBUG
-        ScreenRadar.enable()
+        ScreenRadar.enable(draggable: true, showTimeOnTrail: true)
         #endif
 
         return true
@@ -104,11 +121,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         #if DEBUG
-        ScreenRadar.enable()
+        ScreenRadar.enable(draggable: true, showTimeOnTrail: true)
         #endif
     }
 }
 ```
+
+> Prefer the plain `ScreenRadar.enable()` call if you don't need dragging or trail timing — both parameters are optional and default to `false`.
 
 ### Objective-C
 
