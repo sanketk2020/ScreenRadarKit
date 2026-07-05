@@ -17,7 +17,9 @@
      // MARK: - Private Properties
 
      private var window: PassthroughWindow?
-     private let label = UILabel()
+     private let label = PaddingLabel(
+         contentInsets: UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+     )
 
      /// Tracks the label's center during a pan so we can offset correctly.
      private var dragStartCenter: CGPoint = .zero
@@ -67,13 +69,11 @@
      }
 
      func update(text: String) {
-         label.text = "  \(text)  "
+         label.text = text
 
          // Re-size to fit new text, keeping the same center position
          let currentCenter = label.center
-         label.sizeToFit()
-         label.frame.size.height = 30
-         label.frame.size.width = max(label.frame.size.width + 16, 120)
+         resizeLabel(in: label.superview)
          label.center = currentCenter
 
          // Re-clamp in case the text got longer and would go off-screen
@@ -96,8 +96,10 @@
      private func configureLabel(draggable: Bool) {
          // Frame-based — Auto Layout removed to support free dragging
          label.translatesAutoresizingMaskIntoConstraints = true
-         label.text = "  ScreenRadar  "
+         label.text = "ScreenRadar"
          label.textAlignment = .center
+         label.numberOfLines = 2
+         label.lineBreakMode = .byTruncatingTail
          label.textColor = UIColor { trait in
              trait.userInterfaceStyle == .light ? .white : .black
          }
@@ -135,6 +137,8 @@
 
      /// Places the label at the saved position, or defaults to top-center.
      private func placeLabel(in view: UIView) {
+         resizeLabel(in: view)
+
          if let saved = loadSavedPosition() {
              // Validate the saved point is still on-screen
              // (screen size can change e.g. new device, rotation)
@@ -151,6 +155,24 @@
                  y: safeTop + 8 + label.frame.height / 2
              )
          }
+     }
+
+     private func resizeLabel(in view: UIView?) {
+         let horizontalScreenPadding: CGFloat = 20
+         let minimumWidth: CGFloat = 120
+         let maxWidth = max(
+             minimumWidth,
+             (view?.bounds.width ?? UIScreen.main.bounds.width) - horizontalScreenPadding * 2
+         )
+         let fittingSize = label.sizeThatFits(
+             CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude)
+         )
+         let maxHeight = ceil(label.font.lineHeight * 2) + label.contentInsets.top + label.contentInsets.bottom
+
+         label.frame.size = CGSize(
+             width: min(max(fittingSize.width, minimumWidth), maxWidth),
+             height: min(max(fittingSize.height, 30), maxHeight)
+         )
      }
 
      // MARK: - Gesture Handlers
@@ -241,7 +263,7 @@
          let insets = view.safeAreaInsets
          let halfW = labelSize.width / 2
          let halfH = labelSize.height / 2
-         let padding: CGFloat = 8
+         let padding: CGFloat = 20
 
          let minX = halfW + padding
          let maxX = view.bounds.width - halfW - padding
@@ -310,5 +332,56 @@
                let y = dict["y"] as? CGFloat
          else { return nil }
          return CGPoint(x: x, y: y)
+     }
+ }
+
+ private final class PaddingLabel: UILabel {
+     let contentInsets: UIEdgeInsets
+
+     init(contentInsets: UIEdgeInsets) {
+         self.contentInsets = contentInsets
+         super.init(frame: .zero)
+     }
+
+     required init?(coder: NSCoder) {
+         self.contentInsets = .zero
+         super.init(coder: coder)
+     }
+
+     override func drawText(in rect: CGRect) {
+         super.drawText(in: rect.inset(by: contentInsets))
+     }
+
+     override func textRect(
+         forBounds bounds: CGRect,
+         limitedToNumberOfLines numberOfLines: Int
+     ) -> CGRect {
+         let insetBounds = bounds.inset(by: contentInsets)
+         let textRect = super.textRect(
+             forBounds: insetBounds,
+             limitedToNumberOfLines: numberOfLines
+         )
+
+         return textRect.inset(
+             by: UIEdgeInsets(
+                 top: -contentInsets.top,
+                 left: -contentInsets.left,
+                 bottom: -contentInsets.bottom,
+                 right: -contentInsets.right
+             )
+         )
+     }
+
+     override func sizeThatFits(_ size: CGSize) -> CGSize {
+         let insetSize = CGSize(
+             width: max(0, size.width - contentInsets.left - contentInsets.right),
+             height: max(0, size.height - contentInsets.top - contentInsets.bottom)
+         )
+         let fittingSize = super.sizeThatFits(insetSize)
+
+         return CGSize(
+             width: fittingSize.width + contentInsets.left + contentInsets.right,
+             height: fittingSize.height + contentInsets.top + contentInsets.bottom
+         )
      }
  }

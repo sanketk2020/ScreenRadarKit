@@ -62,6 +62,7 @@ final class TrailBottomSheet: UIViewController {
         closeButton.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
         closeButton.tintColor = .secondaryLabel
         closeButton.accessibilityLabel = "Close"
+        closeButton.contentHorizontalAlignment = .trailing
         closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
 
         let exportButton = UIButton(type: .system)
@@ -69,6 +70,7 @@ final class TrailBottomSheet: UIViewController {
         exportButton.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
         exportButton.tintColor = .systemBlue
         exportButton.accessibilityLabel = "Export"
+        exportButton.contentHorizontalAlignment = .leading
         exportButton.addTarget(self, action: #selector(exportTapped), for: .touchUpInside)
         self.exportButton = exportButton
 
@@ -118,7 +120,7 @@ final class TrailBottomSheet: UIViewController {
 
         let screenshotLabel = UILabel()
         screenshotLabel.translatesAutoresizingMaskIntoConstraints = false
-        screenshotLabel.text = "Tip: take a screenshot before clearing if this trail helps debug a visual state."
+        screenshotLabel.text = "Export before clearing if this trail may help debug a crash or broken flow."
         screenshotLabel.font = .systemFont(ofSize: 12, weight: .regular)
         screenshotLabel.textColor = .secondaryLabel
         screenshotLabel.numberOfLines = 0
@@ -239,7 +241,7 @@ final class TrailBottomSheet: UIViewController {
 
     private func row(index: Int, entry: TrailEntry, isCurrent: Bool) -> UIView {
         let numberLabel = UILabel()
-        numberLabel.text = "\(index + 1)."
+        numberLabel.text = String(format: "%02d.", index + 1)
         numberLabel.font = .monospacedDigitSystemFont(ofSize: 14, weight: isCurrent ? .bold : .regular)
         numberLabel.textColor = isCurrent ? .label : .secondaryLabel
         numberLabel.setContentHuggingPriority(.required, for: .horizontal)
@@ -269,10 +271,12 @@ final class TrailBottomSheet: UIViewController {
         }
 
         guard TrailLogger.shared.showTimeOnTrail, let duration = entry.duration else {
-            return ""
+            return TrailLogger.shared.showTimeOnTrail && !isCurrent ? "<1s" : ""
         }
 
-        let seconds = max(0, Int(duration.rounded()))
+        guard duration >= 1 else { return "<1s" }
+
+        let seconds = Int(duration.rounded())
         if seconds < 60 {
             return "\(seconds)s"
         }

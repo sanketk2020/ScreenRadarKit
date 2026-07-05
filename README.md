@@ -22,10 +22,10 @@ A lightweight debug tool for iOS developers to instantly see which screen they'r
 - 🧭 **Navigation breadcrumbs** — records every visited screen, including repeats and back navigation
 - ⏱️ **Optional screen timing** — pass `showTimeOnTrail: true` to include durations in the trail
 - 🫥 **Passthrough touches** — the overlay never blocks your app's own interactions
-- ⚡ **One-line setup** — call `ScreenRadar.enable()` once and you're done
+- ⚡ **Simple setup** — call `ScreenRadar.enable()` once inside your app's `#if DEBUG` block
 - 🌗 **Dark & light mode support** — overlay automatically adapts to system appearance
 - 🖐️ **Draggable overlay** — optionally drag the label anywhere on screen, snaps to nearest edge
-- 🛡️ **Zero production risk** — compiled only in `DEBUG` builds, never ships to users
+- 🛡️ **Debug-only by usage** — wrap `ScreenRadar.enable()` in `#if DEBUG` so it never runs in production
 
 ---
 
@@ -69,6 +69,8 @@ targets: [
 
 ## Usage
 
+> Important: ScreenRadar is a debug tool. Always wrap `ScreenRadar.enable()` in `#if DEBUG` in your app target. If you call it from a Release build, the overlay will appear.
+
 ### AppDelegate (UIKit)
 
 ```swift
@@ -108,7 +110,33 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 ```
 
-> ⚠️ **SwiftUI** — Native SwiftUI support is currently in progress and will be available in a future release.
+### Objective-C
+
+```objc
+#if DEBUG
+@import ScreenRadarKit;
+
+[ScreenRadar enableWithDraggable:NO showTimeOnTrail:NO];
+#endif
+```
+
+With draggable overlay and trail timing:
+
+```objc
+#if DEBUG
+[ScreenRadar enableWithDraggable:YES showTimeOnTrail:YES];
+#endif
+```
+
+Disable:
+
+```objc
+[ScreenRadar disable];
+```
+
+> Objective-C callers should use the full selector because Swift default parameters are not exposed as Objective-C overloads.
+
+> ⚠️ **SwiftUI** — ScreenRadarKit is UIKit-focused today. Native SwiftUI apps may only surface wrapper controllers such as `UIHostingController`, so SwiftUI screen-name tracking is not supported yet. SwiftUI support may be explored in a future version.
 
 ---
 
@@ -117,7 +145,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 By default the overlay is fixed at the top center. Pass `draggable: true` to let developers drag it anywhere on screen. It snaps to the nearest edge — top, bottom, left, or right — when released. Position is saved across app launches.
 
 ```swift
+#if DEBUG
 ScreenRadar.enable(draggable: true)
+#endif
 ```
 
 ---
@@ -127,13 +157,17 @@ ScreenRadar.enable(draggable: true)
 Tap the overlay label to open a bottom sheet with the current session trail and the previous session trail. The current screen is highlighted, and you can clear or export the trail as a plain text file.
 
 ```swift
+#if DEBUG
 ScreenRadar.enable(showTimeOnTrail: true)
+#endif
 ```
 
 You can combine options:
 
 ```swift
+#if DEBUG
 ScreenRadar.enable(draggable: true, showTimeOnTrail: true)
+#endif
 ```
 
 ---
@@ -185,11 +219,13 @@ When active, ScreenRadar prints to the Xcode console:
 ==========================
 
 📋 ScreenRadar Trail Export
+Project: SampleApp
+Session: Current
 Generated: 2026-06-08 12:04:21
 
-1. HomeViewController           4s
-2. MessagesViewController       12s
-3. ProfileViewController        ← current
+01. HomeViewController          <1s
+02. MessagesViewController      12s
+03. ProfileViewController       ← current
 ```
 
 ---

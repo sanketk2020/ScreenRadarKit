@@ -61,8 +61,9 @@ final class TrailLogger {
         guard !isScreenRadarController(viewController) else { return }
         guard ViewControllerTracker.shared.isTopViewController(viewController) else { return }
 
-        append(viewController)
-        saveCurrentTrail()
+        if append(viewController) {
+            saveCurrentTrail()
+        }
     }
 
     func seedInitialTrail(with viewControllers: [UIViewController]) {
@@ -187,7 +188,7 @@ final class TrailLogger {
     // MARK: - Private Helpers
 
     private func formattedLine(for entry: TrailEntry, index: Int, isCurrent: Bool) -> String {
-        let number = "\(index + 1)."
+        let number = String(format: "%02d.", index + 1)
         let title = "\(number) \(entry.screenName)"
         let suffix: String
 
@@ -195,6 +196,8 @@ final class TrailLogger {
             suffix = "← current"
         } else if showTimeOnTrail, let duration = entry.duration {
             suffix = format(duration: duration)
+        } else if showTimeOnTrail {
+            suffix = "<1s"
         } else {
             suffix = ""
         }
@@ -205,7 +208,9 @@ final class TrailLogger {
     }
 
     private func format(duration: TimeInterval) -> String {
-        let seconds = max(0, Int(duration.rounded()))
+        guard duration >= 1 else { return "<1s" }
+
+        let seconds = Int(duration.rounded())
         if seconds < 60 {
             return "\(seconds)s"
         }
@@ -219,7 +224,10 @@ final class TrailLogger {
         save(currentTrail, forKey: currentTrailKey)
     }
 
-    private func append(_ viewController: UIViewController) {
+    @discardableResult
+    private func append(_ viewController: UIViewController) -> Bool {
+        guard currentViewController !== viewController else { return false }
+
         currentViewController = viewController
         currentTrail.append(
             TrailEntry(
@@ -228,6 +236,7 @@ final class TrailLogger {
                 duration: nil
             )
         )
+        return true
     }
 
     private func save(_ trail: [TrailEntry], forKey key: String) {

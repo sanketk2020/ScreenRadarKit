@@ -18,10 +18,7 @@ let package = Package(
         .target(
             name: "ScreenRadarKit",
             dependencies: [],
-            path: "Sources/ScreenRadarKit",
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]
+            path: "Sources/ScreenRadarKit"
         ),
         .testTarget(
             name: "ScreenRadarKitTests",
